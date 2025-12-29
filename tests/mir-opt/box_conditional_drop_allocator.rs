@@ -1,4 +1,3 @@
-// skip-filecheck
 //@ test-mir-pass: ElaborateDrops
 //@ needs-unwind
 #![feature(allocator_api)]
@@ -30,6 +29,11 @@ impl Drop for HasDrop {
 
 // EMIT_MIR box_conditional_drop_allocator.main.ElaborateDrops.diff
 fn main() {
+    // CHECK-LABEL: fn main(
+    // CHECK: debug b => [[b:_.*]];
+    // CHECK: [[init:_.*]] = const false;
+    // CHECK: [[init]] = const true;
+    // CHECK: drop(([[b]].1: DropAllocator))
     let b = Box::new_in(HasDrop, DropAllocator);
     if true {
         drop(*b);
