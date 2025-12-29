@@ -1,4 +1,3 @@
-// skip-filecheck
 //@ test-mir-pass: EnumSizeOpt
 // EMIT_MIR_FOR_EACH_BIT_WIDTH
 //@ compile-flags: -Zunsound-mir-opts -Zdump-mir-exclude-alloc-bytes
@@ -42,6 +41,8 @@ pub enum RandOrderDiscr {
 
 // EMIT_MIR enum_opt.unin.EnumSizeOpt.diff
 pub fn unin() -> NoData {
+    // CHECK-LABEL: fn unin(
+    // CHECK: copy_nonoverlapping(
     let mut a = NoData::None;
     a = NoData::Large([1; 8196]);
     a
@@ -49,6 +50,8 @@ pub fn unin() -> NoData {
 
 // EMIT_MIR enum_opt.cand.EnumSizeOpt.diff
 pub fn cand() -> Candidate {
+    // CHECK-LABEL: fn cand(
+    // CHECK: copy_nonoverlapping(
     let mut a = Candidate::Small(1);
     a = Candidate::Large([1; 8196]);
     a
@@ -56,6 +59,8 @@ pub fn cand() -> Candidate {
 
 // EMIT_MIR enum_opt.invalid.EnumSizeOpt.diff
 pub fn invalid() -> InvalidIdxs {
+    // CHECK-LABEL: fn invalid(
+    // CHECK-NOT: copy_nonoverlapping(
     let mut a = InvalidIdxs::A;
     a = InvalidIdxs::Large([0; 1024]);
     a
@@ -63,6 +68,8 @@ pub fn invalid() -> InvalidIdxs {
 
 // EMIT_MIR enum_opt.trunc.EnumSizeOpt.diff
 pub fn trunc() -> NotTrunctable {
+    // CHECK-LABEL: fn trunc(
+    // CHECK-NOT: copy_nonoverlapping(
     let mut a = NotTrunctable::A;
     a = NotTrunctable::B([0; 1024]);
     a = NotTrunctable::C([0; 4096]);
