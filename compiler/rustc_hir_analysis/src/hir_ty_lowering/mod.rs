@@ -2447,6 +2447,12 @@ impl<'tcx> dyn HirTyLowerer<'tcx> + '_ {
         };
 
         let Some(value) = ctor_const.try_to_value() else {
+            // If the callee already produced an error (e.g., a function item
+            // used as a const path), propagate it instead of emitting a
+            // redundant "tuple constructor with invalid base path" diagnostic.
+            if let ty::ConstKind::Error(_) = ctor_const.kind() {
+                return ctor_const;
+            }
             return non_adt_or_variant_res();
         };
 
@@ -2719,14 +2725,20 @@ impl<'tcx> dyn HirTyLowerer<'tcx> + '_ {
                 span_bug!(span, "use of bare `static` ConstArgKind::Path's not yet supported")
             }
             // FIXME(const_generics): create real const to allow fn items as const paths
-            Res::Def(DefKind::Fn | DefKind::AssocFn, did) => {
-                self.dcx().span_delayed_bug(span, "function items cannot be used as const args");
-                let args = self.lower_generic_args_of_path_segment(
+            Res::Def(DefKind::Fn | DefKind::AssocFn, _) => {
+                let e = self.dcx().span_err(
                     span,
-                    did,
-                    path.segments.last().unwrap(),
+                    "function items cannot be used as const args",
                 );
-                ty::Const::zero_sized(tcx, Ty::new_fn_def(tcx, did, args))
+                ty::Const::new_error(tcx, e)
+            }
+
+            Res::SelfCtor(_) | Res::SelfTyParam { .. } | Res::SelfTyAlias { .. } => {
+                let e = self.dcx().span_err(
+                    span,
+                    "`Self` is not allowed in a const generic argument",
+                );
+                ty::Const::new_error(tcx, e)
             }
 
             // Exhaustive match to be clear about what exactly we're considering to be
@@ -2759,9 +2771,6 @@ impl<'tcx> dyn HirTyLowerer<'tcx> + '_ {
                 _,
             )
             | Res::PrimTy(_)
-            | Res::SelfTyParam { .. }
-            | Res::SelfTyAlias { .. }
-            | Res::SelfCtor(_)
             | Res::Local(_)
             | Res::ToolMod
             | Res::NonMacroAttr(_)

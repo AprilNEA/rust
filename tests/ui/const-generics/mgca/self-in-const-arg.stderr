@@ -1,0 +1,14 @@
+error: `Self` is not allowed in a const generic argument
+  --> $DIR/self-in-const-arg.rs:12:21
+   |
+LL |         let _: [u8; Self];
+   |                     ^^^^
+
+error: `Self` is not allowed in a const generic argument
+  --> $DIR/self-in-const-arg.rs:23:20
+   |
+LL |         let _: [A; Self];
+   |                    ^^^^
+
+error: aborting due to 2 previous errors
+

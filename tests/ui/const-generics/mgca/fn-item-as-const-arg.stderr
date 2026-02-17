@@ -1,0 +1,14 @@
+error: function items cannot be used as const args
+  --> $DIR/fn-item-as-const-arg.rs:14:24
+   |
+LL | struct Baz<T, U = [u8; size_of::<T>]>(T, U);
+   |                        ^^^^^^^^^^^^
+
+error: function items cannot be used as const args
+  --> $DIR/fn-item-as-const-arg.rs:18:11
+   |
+LL |     bar::<foo>();
+   |           ^^^
+
+error: aborting due to 2 previous errors
+

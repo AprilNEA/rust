@@ -1,8 +1,8 @@
-error: complex const arguments must be placed inside of a `const` block
+error: function items cannot be used as const args
   --> $DIR/size-of-generic-ptr-in-array-len.rs:6:9
    |
 LL |     [0; size_of::<*mut T>()];
-   |         ^^^^^^^^^^^^^^^^^^^
+   |         ^^^^^^^^^^^^^^^^^
 
 error: generic parameters may not be used in const operations
   --> $DIR/size-of-generic-ptr-in-array-len.rs:8:32

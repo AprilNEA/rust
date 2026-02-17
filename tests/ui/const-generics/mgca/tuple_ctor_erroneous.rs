@@ -29,10 +29,9 @@ fn test_errors<const N: usize>() {
 
     accepts_point::<{ UnresolvedIdent(N, N) }>();
     //~^ ERROR cannot find function, tuple struct or tuple variant `UnresolvedIdent` in this scope
-    //~| ERROR tuple constructor with invalid base path
 
     accepts_point::<{ non_ctor(N, N) }>();
-    //~^ ERROR complex const arguments must be placed inside of a `const` block
+    //~^ ERROR function items cannot be used as const args
 
     accepts_point::<{ CONST_ITEM(N, N) }>();
     //~^ ERROR tuple constructor with invalid base path
